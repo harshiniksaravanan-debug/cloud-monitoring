@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: cloud-monitoring-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:///./monitoring.db
+      - key: CHECK_INTERVAL_SECONDS
+        value: 60
