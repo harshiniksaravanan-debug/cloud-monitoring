@@ -65,3 +65,22 @@ if IS_VERCEL:
         from services.monitor_service import run_checks
         await run_checks()
         return {"status": "ok", "message": "Health checks triggered"}
+
+    @app.post("/api/seed")
+    async def seed_data():
+        from sqlalchemy import select
+        from database import async_session
+        from models import Monitor
+        async with async_session() as db:
+            existing = await db.execute(select(Monitor).limit(1))
+            if existing.scalar_one_or_none():
+                return {"status": "ok", "message": "Data already seeded"}
+            monitors = [
+                Monitor(name="Google", url="https://www.google.com", check_interval=60),
+                Monitor(name="GitHub", url="https://www.github.com", check_interval=60),
+                Monitor(name="Example", url="https://example.com", check_interval=60),
+            ]
+            for m in monitors:
+                db.add(m)
+            await db.commit()
+        return {"status": "ok", "message": "Seed data added"}
