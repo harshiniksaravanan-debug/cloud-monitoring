@@ -11,14 +11,14 @@ async function request(url, options = {}) {
 }
 
 export const api = {
-  getDashboard: () => request('/monitors/dashboard'),
-  listMonitors: () => request('/monitors'),
-  createMonitor: (data) => request('/monitors', { method: 'POST', body: JSON.stringify(data) }),
-  updateMonitor: (id, data) => request(`/monitors/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  deleteMonitor: (id) => request(`/monitors/${id}`, { method: 'DELETE' }),
-  listIncidents: (params = {}) => {
-    const qs = new URLSearchParams(params).toString();
-    return request(`/incidents?${qs}`);
-  },
-  updateIncident: (id, data) => request(`/incidents/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  getDashboard: () => request('/patients/dashboard'),
+  listPatients: () => request('/patients'),
+  getPatient: (id) => request(`/patients/${id}`),
+  createPatient: (data) => request('/patients', { method: 'POST', body: JSON.stringify(data) }),
+  updatePatient: (id, data) => request(`/patients/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deletePatient: (id) => request(`/patients/${id}`, { method: 'DELETE' }),
+  listRecords: (patientId) => request(`/patients/${patientId}/records`),
+  createRecord: (patientId, data) => request(`/patients/${patientId}/records`, { method: 'POST', body: JSON.stringify(data) }),
+  updateRecord: (recordId, data) => request(`/patients/records/${recordId}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteRecord: (recordId) => request(`/patients/records/${recordId}`, { method: 'DELETE' }),
 };

@@ -1,22 +1,24 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database import Base
 
 
-class Monitor(Base):
-    __tablename__ = "monitors"
+class Patient(Base):
+    __tablename__ = "patients"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    url: Mapped[str] = mapped_column(String(500), nullable=False)
-    check_interval: Mapped[int] = mapped_column(Integer, default=60)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    last_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    last_checked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    response_time_ms: Mapped[float | None] = mapped_column(Float, nullable=True)
+    age: Mapped[int] = mapped_column(Integer, nullable=False)
+    gender: Mapped[str] = mapped_column(String(10), nullable=False)
+    contact: Mapped[str] = mapped_column(String(50), nullable=False)
+    blood_group: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    allergies: Mapped[str | None] = mapped_column(Text, nullable=True)
+    height: Mapped[float | None] = mapped_column(Float, nullable=True)
+    weight: Mapped[float | None] = mapped_column(Float, nullable=True)
+    emergency_contact: Mapped[str | None] = mapped_column(String(50), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
@@ -26,28 +28,25 @@ class Monitor(Base):
         onupdate=lambda: datetime.now(timezone.utc),
     )
 
-    incidents: Mapped[list["Incident"]] = relationship(
-        "Incident", back_populates="monitor", cascade="all, delete-orphan"
+    medical_records: Mapped[list["MedicalRecord"]] = relationship(
+        "MedicalRecord", back_populates="patient", cascade="all, delete-orphan"
     )
 
 
-class Incident(Base):
-    __tablename__ = "incidents"
+class MedicalRecord(Base):
+    __tablename__ = "medical_records"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    monitor_id: Mapped[int] = mapped_column(Integer, ForeignKey("monitors.id"))
-    title: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=True)
-    severity: Mapped[str] = mapped_column(
-        String(20), default="warning"
-    )
-    status: Mapped[str] = mapped_column(String(20), default="open")
-    detected_at: Mapped[datetime] = mapped_column(
+    patient_id: Mapped[int] = mapped_column(Integer, ForeignKey("patients.id"))
+    disease_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    symptoms: Mapped[str | None] = mapped_column(Text, nullable=True)
+    diagnosis_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    doctor: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    medicines: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="ongoing")
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
-    resolved_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    response_time_ms: Mapped[float | None] = mapped_column(Float, nullable=True)
-    status_code: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    monitor: Mapped["Monitor"] = relationship("Monitor", back_populates="incidents")
+    patient: Mapped["Patient"] = relationship("Patient", back_populates="medical_records")

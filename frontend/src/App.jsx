@@ -1,45 +1,40 @@
 import { useEffect, useState } from 'react';
 import { api } from './api';
 import Dashboard from './components/Dashboard';
-import MonitorList from './components/MonitorList';
-import AddMonitor from './components/AddMonitor';
-import IncidentList from './components/IncidentList';
+import PatientList from './components/PatientList';
+import AddPatient from './components/AddPatient';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState(null);
-  const [monitors, setMonitors] = useState([]);
-  const [incidents, setIncidents] = useState([]);
+  const [patients, setPatients] = useState([]);
   const [error, setError] = useState(null);
 
   async function fetchAll() {
     try {
-      const [s, m, i] = await Promise.all([
+      const [s, p] = await Promise.all([
         api.getDashboard(),
-        api.listMonitors(),
-        api.listIncidents({ limit: '100' }),
+        api.listPatients(),
       ]);
       setStats(s);
-      setMonitors(m);
-      setIncidents(i);
+      setPatients(p);
       setError(null);
     } catch (e) {
       setError(e.message);
     }
   }
 
-  useEffect(() => { fetchAll(); const t = setInterval(fetchAll, 15000); return () => clearInterval(t); }, []);
+  useEffect(() => { fetchAll(); }, []);
 
   const tabs = [
     { key: 'dashboard', label: 'Dashboard' },
-    { key: 'monitors', label: 'Monitors' },
-    { key: 'incidents', label: 'Incidents' },
+    { key: 'patients', label: 'Patients' },
   ];
 
   return (
     <div className="app">
       <header className="header">
-        <h1>Cloud Monitoring & Incident Report</h1>
+        <h1>Hospital Patient & Disease Management</h1>
         <nav className="tabs">
           {tabs.map(t => (
             <button key={t.key} className={`tab ${activeTab === t.key ? 'active' : ''}`}
@@ -51,15 +46,14 @@ export default function App() {
       <main className="main">
         {error && <div className="error-banner">Connection Error: {error}</div>}
 
-        {activeTab === 'dashboard' && stats && <Dashboard stats={stats} incidents={incidents} />}
-        {activeTab === 'monitors' && (
-          <>
-            <AddMonitor onAdded={fetchAll} />
-            <MonitorList monitors={monitors} onRefresh={fetchAll} />
-          </>
+        {activeTab === 'dashboard' && stats && (
+          <Dashboard stats={stats} patients={patients} />
         )}
-        {activeTab === 'incidents' && (
-          <IncidentList incidents={incidents} onRefresh={fetchAll} />
+        {activeTab === 'patients' && (
+          <>
+            <AddPatient onAdded={fetchAll} />
+            <PatientList patients={patients} onRefresh={fetchAll} />
+          </>
         )}
       </main>
     </div>

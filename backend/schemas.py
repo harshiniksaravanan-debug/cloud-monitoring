@@ -1,68 +1,92 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
 
 
-class MonitorCreate(BaseModel):
+class PatientCreate(BaseModel):
     name: str
-    url: str
-    check_interval: int = 60
+    age: int
+    gender: str
+    contact: str
+    blood_group: Optional[str] = None
+    allergies: Optional[str] = None
+    height: Optional[float] = None
+    weight: Optional[float] = None
+    emergency_contact: Optional[str] = None
 
 
-class MonitorUpdate(BaseModel):
+class PatientUpdate(BaseModel):
     name: Optional[str] = None
-    url: Optional[str] = None
-    check_interval: Optional[int] = None
-    is_active: Optional[bool] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    contact: Optional[str] = None
+    blood_group: Optional[str] = None
+    allergies: Optional[str] = None
+    height: Optional[float] = None
+    weight: Optional[float] = None
+    emergency_contact: Optional[str] = None
 
 
-class MonitorResponse(BaseModel):
+class PatientResponse(BaseModel):
     id: int
     name: str
-    url: str
-    check_interval: int
-    is_active: bool
-    last_status: Optional[str] = None
-    last_checked_at: Optional[datetime] = None
-    response_time_ms: Optional[float] = None
+    age: int
+    gender: str
+    contact: str
+    blood_group: Optional[str] = None
+    allergies: Optional[str] = None
+    height: Optional[float] = None
+    weight: Optional[float] = None
+    emergency_contact: Optional[str] = None
     created_at: datetime
     updated_at: datetime
-    uptime_percentage: Optional[float] = None
+    record_count: int = 0
 
     class Config:
         from_attributes = True
 
 
-class IncidentResponse(BaseModel):
+class MedicalRecordCreate(BaseModel):
+    disease_name: str
+    symptoms: Optional[str] = None
+    diagnosis_date: Optional[datetime] = None
+    doctor: Optional[str] = None
+    medicines: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class MedicalRecordUpdate(BaseModel):
+    disease_name: Optional[str] = None
+    symptoms: Optional[str] = None
+    diagnosis_date: Optional[datetime] = None
+    doctor: Optional[str] = None
+    medicines: Optional[str] = None
+    status: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class MedicalRecordResponse(BaseModel):
     id: int
-    monitor_id: int
-    title: str
-    description: Optional[str] = None
-    severity: str
+    patient_id: int
+    disease_name: str
+    symptoms: Optional[str] = None
+    diagnosis_date: Optional[datetime] = None
+    doctor: Optional[str] = None
+    medicines: Optional[str] = None
     status: str
-    detected_at: datetime
-    resolved_at: Optional[datetime] = None
-    response_time_ms: Optional[float] = None
-    status_code: Optional[int] = None
-    error_message: Optional[str] = None
-    monitor_name: Optional[str] = None
+    notes: Optional[str] = None
+    created_at: datetime
+    patient_name: Optional[str] = None
 
     class Config:
         from_attributes = True
-
-
-class IncidentUpdate(BaseModel):
-    status: str
-    resolved_at: Optional[datetime] = None
 
 
 class DashboardStats(BaseModel):
-    total_monitors: int
-    active_monitors: int
-    online_count: int
-    offline_count: int
-    total_incidents: int
-    open_incidents: int
-    resolved_incidents: int
-    average_response_time: Optional[float] = None
+    total_patients: int
+    active_records: int
+    resolved_records: int
+    total_records: int
+    male_count: int
+    female_count: int
