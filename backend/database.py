@@ -1,9 +1,15 @@
+import os
+
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
 from config import settings
 
-engine = create_async_engine(settings.database_url, echo=False)
+db_url = settings.database_url
+if os.environ.get("VERCEL_ENV") or os.environ.get("VERCEL_URL"):
+    db_url = "sqlite+aiosqlite:////tmp/monitoring.db"
+
+engine = create_async_engine(db_url, echo=False)
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 

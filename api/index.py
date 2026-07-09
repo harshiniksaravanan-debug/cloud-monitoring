@@ -1,6 +1,9 @@
 import logging
 import os
+import sys
 from contextlib import asynccontextmanager
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,21 +17,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-IS_VERCEL = bool(os.environ.get("VERCEL_ENV") or os.environ.get("VERCEL_URL"))
+is_vercel = os.environ.get("VERCEL", False)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting up...")
+    logger.info("Starting Vercel function...")
     await init_db()
-    if not IS_VERCEL:
-        from services.monitor_service import start_monitoring
-        await start_monitoring()
     yield
-    if not IS_VERCEL:
-        from services.monitor_service import stop_monitoring
-        await stop_monitoring()
-    logger.info("Shutdown complete.")
+    logger.info("Shutdown.")
 
 
 app = FastAPI(
@@ -57,11 +54,3 @@ app.include_router(incidents.router)
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok", "service": "cloud-monitoring"}
-
-
-if IS_VERCEL:
-    @app.post("/api/cron/check")
-    async def cron_check():
-        from services.monitor_service import run_checks
-        await run_checks()
-        return {"status": "ok", "message": "Health checks triggered"}
