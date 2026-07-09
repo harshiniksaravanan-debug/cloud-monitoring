@@ -6,8 +6,6 @@ from sqlalchemy.orm import DeclarativeBase
 from config import settings
 
 db_url = settings.database_url
-if os.environ.get("VERCEL_ENV") or os.environ.get("VERCEL_URL"):
-    db_url = "sqlite+aiosqlite:////tmp/monitoring.db"
 
 engine = create_async_engine(db_url, echo=False)
 async_session = async_sessionmaker(engine, expire_on_commit=False)
@@ -24,5 +22,5 @@ async def get_db():
 
 async def init_db():
     async with engine.begin() as conn:
-        from models import Monitor, Incident
+        from models import MedicalRecord, Patient
         await conn.run_sync(Base.metadata.create_all)

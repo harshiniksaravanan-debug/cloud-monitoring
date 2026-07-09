@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    database_url: str = "sqlite+aiosqlite:///./monitoring.db"
+    database_url: str = "sqlite+aiosqlite:///./hospital.db"
     check_interval_seconds: int = 60
     request_timeout_seconds: int = 10
     incident_cooldown_minutes: int = 5
